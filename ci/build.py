@@ -84,9 +84,14 @@ def get_matrix() -> List[DeviceConfiguration]:
     configFile = open("./ci/devices.json", "r")
     config = json.load(configFile)
 
-    for deviceConfig in config:
-        matrix.append(DeviceConfiguration(
-            deviceConfig["platform"], Board[deviceConfig["board"]], deviceConfig["platformio_board"]))
+    matrix.extend(
+        DeviceConfiguration(
+            deviceConfig["platform"],
+            Board[deviceConfig["board"]],
+            deviceConfig["platformio_board"],
+        )
+        for deviceConfig in config
+    )
 
     return matrix
 
@@ -151,7 +156,7 @@ def build() -> int:
         if status == False:
             failed_builds.append(device.platformio_board)
 
-    if len(failed_builds) > 0:
+    if failed_builds:
         print(f"  🡢 {COLOR_RED}Failed!{COLOR_RESET}")
 
         for failed_build in failed_builds:
@@ -185,7 +190,7 @@ def build_for_device(device: DeviceConfiguration) -> bool:
 
         print(f"    🡢 {COLOR_RED}Failed!{COLOR_RESET}")
 
-    print(f"::endgroup::")
+    print("::endgroup::")
 
     return success
 
